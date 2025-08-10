@@ -26,13 +26,13 @@ adat illesztést. Például ha egy távoli szerverről kérünk le adatokat, azo
 van. A repository réteg konvertálja a szervertől kapott adatokat az alkalmazás adatmodelljére, majd az alatta elhelyezkedő dao használatával perzisztálja azokat
 a lokális adatbázisba.
 
-A repository (vagy ha nincs az alkalmazásban repository réteg, akkor a dao) az elsődleges adatforrás a view modellek számára. A view modell lifecycle képes
-komponens az androidban, azaz bármilyen taszkokat indít, azok szabályosan meg lesznek szüntetve, amikor a view modell életciklusát az operációs rendszer
+A repository (vagy ha nincs az alkalmazásban repository réteg, akkor a dao) az elsődleges adatforrás a view modell számára. A view modell lifecycle képes
+komponens az androidban, azaz bármilyen taszkot indít, azok szabályosan meg lesznek szüntetve, amikor a view modell életciklusát az operációs rendszer
 ill. az Android framework lezárja.
 
-Activity, Fragment vagy Composable: ezek alkothatják egy android app felhasználó felületét (UI). Nagyon fontos, hogy ma már reaktív, dekleratív UI-kat írunk.
-A UI aktuális kinézetet mindig az ún. __state függvénye__. 
-A state-ről a view modell gondoskodik, így a UI számára a kizárólag source of the truth az maga a view modell.
+Activity, Fragment vagy Composable: ezek alkothatják egy android app felhasználói felületét (UI). Nagyon fontos, hogy ma már reaktív, dekleratív UI-kat írunk.
+A UI aktuális kinézete mindig az ún. __state függvénye__. 
+A state-ről a view modell gondoskodik, így a UI számára a source of the truth maga a view modell.
 
 ### Offline first
 
