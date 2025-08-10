@@ -32,7 +32,7 @@ hogy ezek a folyamatok megfelelően véget érjenek, amikor a komponens életcik
 vagy figyelmen kívül hagyni.
 
 
-Activity, Fragment vagy Composable: ezek alkothatják egy android app felhasználói felületét (UI). Nagyon fontos, hogy ma már reaktív, dekleratív UI-kat írunk.
+Activity, Fragment vagy Composable: ezek alkothatják egy android app felhasználói felületét (UI). Nagyon fontos, hogy ma már reaktív, dekleratív UI-okat írunk.
 A UI aktuális kinézete mindig az ún. __state függvénye__. 
 A state-ről a view modell gondoskodik, így a UI számára a source of the truth maga a view modell.
 
@@ -44,7 +44,7 @@ az alkalmazás architektúráját.
 ### Single source of truth
 
 Megállapodás kérdése, hogy ez melyik réteg. Ha a használat feltételei olyanok, hogy mindig elérhető megbízható hálózati kapcsolat, akkor lehet akár a szervertől
-kapott adat is, amelyet memóriában tartunk. Ilyenkor egy adott képernyőre navigáláskor minden esetben elindul egy hálózati kérés, amely a szervertől lehúzza a legfirsebb állapotot.
+kapott adat is, amelyet memóriában tartunk. Ilyenkor egy adott képernyőre navigáláskor minden esetben elindul egy hálózati kérés, amely a szerverről lehúzza a legfrissebb állapotot.
 Ha nincs mindig elérhető hálózat működés közben, akkor a lokális adatbázis a legjobb választás. Memóriában tartott adatstruktúrákra alapozni
 nem ideális, mert használat közben gyakran kerül az alkalmazás háttérbe, majd újra előtérbe; ennek során az android alkalmazás komponensek bármikor 
 újra példányosodhatnak a rendszer által, ami a lokálisan nem tárolt adatok elvesztéséhez vezet.
@@ -58,13 +58,14 @@ szerver hívás, lokális adatbázissal való kommunikáció a main thread-től 
 
 A modern android UI alapvető építőköve. Egy teljesen új paradigmát is hoz magával: a régi imperatív UI fejlesztés helyett a deklaratív szemléletet. 
 
-A Compose komponensek lehetőleg legyenek stateless-ek, állapot nélküliek. Az ún. state hoisting segítségével az állapotot emeljük ki a composable-ből 
+A Compose komponensek lehetőleg legyenek stateless-ek, állapot nélküliek. Az ún. __state hoisting__ segítségével az állapotot emeljük ki a composable-ből 
 és mozgassuk át magassabban lévő wrapper komponensbe, de még jobb, ha egészen a view modellig. 
 
-Akinél az állapotot tároló/megváltoztató kódrészlet van, az a réteg a source of truth. Ha a UI komponens szemszögéből vizsgáljuk, akkor az állapot mindig fentről lefelé adódik át 
-a rétegeken keresztül. A felhasználó által kiváltott események pedig lentről felfelé mozognak a view modellig.
+Akinél az állapotot tároló/megváltoztató kódrészlet van, az a réteg a source of the truth. Ha a UI komponens szemszögéből vizsgáljuk, akkor az állapot mindig fentről lefelé adódik át 
+a rétegeken keresztül. A felhasználó által kiváltott események pedig lentről felfelé mozognak a view modellig. 
+Ez is egy best practice, vagy axióma, aminek a neve __unidirectional data flow__.
 
-__Semmiképpen ne írjunk olyan kesze-kusza logikát, ahol a UI state több résztvevő által is frissülhet!__
+Ezért __semmiképpen ne írjunk olyan kesze-kusza logikát, ahol a UI state több résztvevő által is frissülhet!__
 
 ### Izolált komponensek
 
@@ -74,9 +75,11 @@ Mindent olyan szemléletben kell lefejleszteni, hogy a saját "futási környeze
 
 Egy view modell nem tesztelhető önállóan, ha a kódja `@Composable` függvényeket is tartalmaz.
 
-Egy komponens akkor sem tesztlehető izoláltan, ha saját maga hozza létre a dependenciáit. Így erősen javasolt egy DI framework használata. 
+Egy komponens nem tesztlehető izoláltan, ha saját maga hozza létre a dependenciáit. (Így erősen javasolt egy DI framework használata.) 
 
-Az a `@Composable`, amelynek view modell függősége van, nagyon nehezen tesztelhető izoláltan. Ezért egy generikusnak szánt komponens esetében az a helyes,
+Az a `@Composable`, amelynek view modell függősége van, nagyon nehezen tesztelhető izoláltan. 
+
+Ezért egy generikusnak szánt komponens esetében az a helyes,
 ha csak teljesen "neutrális" paramétereket vesz át, gyakorlatilag a Kotlin alap adattípusait (String, Int, Boolean stb.). Általában a jól megírt generikus komponens
 újrafelhasználható, nagyon könnyű hozzá preview-t készíteni és teszt esetet írni a működéséhez.
 
@@ -88,17 +91,19 @@ az adott osztály. Ha több fejlesztő dolgozik az alkalmazás összeérő rész
 __nem kell egymásra várni__. 
 
 További előnye az interfészre való illeszkedésnek, hogy teszteléskor az ilyen komponensek sokkal könnyebben mock-olhatóak, mint azok,
-amelyek viselkedését nem írja le egy interfész. 
+amelyek viselkedését nem írja le interfész. 
 
 Az interfészre elég ránézni, és körülbelül tudjuk, mire való az adott komponens. Visszatartja a fejlesztőt
-attól, hogy ún. _god object_-et írjon, azaz megpróbáljon mindent belezsúfolni egy adott osztályba. 
+attól, hogy ún. _god object_-et írjon, azaz megpróbáljon mindent belezsúfolni az adott osztályba. 
 
-Elősegíti a __sepration of concerns__ alapelv betartását, ami szintén annak a megfogalmazása, hogy minden osztálynak legyen egy 
+Elősegíti a __sepration of concerns__ alapelv betartását, ami annak a megfogalmazása, hogy minden osztálynak legyen egy 
 __szigorú, jól behatárolt felelősségi köre__ és ennél többet ne is akarjon a fejlesztő megvalósítani benne.
 
 ### Lifecycle
 
-Android esetében ez a kezdetektől jelen van és megkerülhetetlen. A komponensek folyamatosan létrejönnek és elpusztulnak, miközben az android rendszer
+Android esetében ez a kezdetektől jelen van és megkerülhetetlen. 
+
+A komponensek folyamatosan létrejönnek és elpusztulnak, miközben az android rendszer
 próbálja menedzselni a rendelkezésre álló erőforrásokat. Amint a felhasználó ide-oda navigál az alkalmazáson belül,
 folyamatosan épül és lebomlik a back stack, ami szintén életciklus eseményeket generál. 
 
