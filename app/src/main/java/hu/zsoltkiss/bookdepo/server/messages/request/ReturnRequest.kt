@@ -1,6 +1,6 @@
 package hu.zsoltkiss.bookdepo.server.messages.request
 
-import hu.zsoltkiss.konyvkolcsonzo.server.messages.Endpoint
+import hu.zsoltkiss.bookdepo.server.messages.Endpoint
 
 data class ReturnRequest(
     val userId: Long,

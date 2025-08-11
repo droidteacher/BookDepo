@@ -8,6 +8,7 @@ import hu.zsoltkiss.bookdepo.data.repository.egyPerc
 import hu.zsoltkiss.bookdepo.data.repository.felPerc
 import hu.zsoltkiss.bookdepo.data.repository.negyedPerc
 import hu.zsoltkiss.bookdepo.data.repository.tick
+import hu.zsoltkiss.bookdepo.server.messages.Endpoint
 import hu.zsoltkiss.bookdepo.server.messages.request.BookListRequest
 import hu.zsoltkiss.bookdepo.server.messages.request.BorrowRequest
 import hu.zsoltkiss.bookdepo.server.messages.request.ClaimRequest
@@ -16,10 +17,9 @@ import hu.zsoltkiss.bookdepo.server.messages.request.ServerRequest
 import hu.zsoltkiss.bookdepo.server.messages.response.BookListResponse
 import hu.zsoltkiss.bookdepo.util.IDProvider
 import hu.zsoltkiss.bookdepo.util.IDProviderImpl
-import hu.zsoltkiss.konyvkolcsonzo.server.messages.Endpoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.time.ZonedDateTime
@@ -40,14 +40,14 @@ class BookDepoImpl private constructor() : BookDepo {
     }
 
     private val idProvider: IDProvider = IDProviderImpl()
-    private val job = SupervisorJob()
-    private val depoScope = CoroutineScope(Dispatchers.IO + job)
 
-    private val myScope = CoroutineScope(Dispatchers.IO)
+    private lateinit var depoJob: Job
+
+    private val depoScope = CoroutineScope(Dispatchers.IO)
 
     override fun start() {
 
-        myScope.launch {
+        depoJob = depoScope.launch {
             launch { replenishment() }
             launch { generateBorrows() }
             launch { automaticReturns() }
@@ -167,7 +167,7 @@ class BookDepoImpl private constructor() : BookDepo {
 
     override fun onClose() {
         println("7777 DEPO ::onClose")
-        job.cancel()
+        depoJob.cancel()
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
